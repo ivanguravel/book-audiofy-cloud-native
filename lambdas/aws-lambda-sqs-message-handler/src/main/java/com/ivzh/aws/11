@@ -1,0 +1,4 @@
+curl -X POST \
+  'https://9b7bcyuveh.execute-api.us-east-1.amazonaws.com/test/helloworld' \
+  -H 'content-type: application/json' \
+  -d '{ "time": "evening" }'
