@@ -23,10 +23,6 @@ public class S3OperationsHandler {
 
 
     public S3OperationsHandler(String bucket, PollyHandler pollyHandler, String file) {
-//        BasicAWSCredentials awsCreds = new
-//                BasicAWSCredentials("",
-//                "");
-//        AWSCredentialsProvider provider = new AWSStaticCredentialsProvider(awsCreds);
 
         this.pollyHandler = pollyHandler;
         final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
