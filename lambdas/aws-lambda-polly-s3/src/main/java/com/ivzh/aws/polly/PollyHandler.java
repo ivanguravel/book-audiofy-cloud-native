@@ -13,11 +13,13 @@ public class PollyHandler {
     private final AmazonPollyClient polly;
 
     public PollyHandler(Region region) {
-        BasicAWSCredentials awsCreds = new
-                BasicAWSCredentials("",
-                "");
+//        BasicAWSCredentials awsCreds = new
+//                BasicAWSCredentials("",
+//                "");
 
-        this.polly = new AmazonPollyClient(new AWSStaticCredentialsProvider(awsCreds));
+//        new AWSStaticCredentialsProvider(awsCreds)
+
+        this.polly = new AmazonPollyClient();
         this.polly.setRegion(region);
     }
 
