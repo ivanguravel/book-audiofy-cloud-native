@@ -15,6 +15,7 @@ There are 3 main functionalities here:
 - AWS DynamoDB: reading-writing metadata for the S3 objects;
 - AWS Polly: text-2-speech;
 - AWS Lambda: simple custom functionality for interaction with AWS APIs;
+- AWS SQS: publisher-subscriber pattern;
 - AWS CloudFront: using CDN for S3 audio files (in progress);
 - AWS CloudFormation: infrastructure provisioning.
 
