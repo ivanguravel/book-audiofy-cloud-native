@@ -33,16 +33,16 @@ public class DynamoDbPayloadHandler implements RequestHandler<SQSEvent, Void> {
         for (SQSMessage msg : event.getRecords()) {
             map.putAll(msg.getAttributes());
         }
-
+        String fileName = JsonUtil.readFileNameFromS3EventJson(String.valueOf(event.getRecords().get(0)));
         Table table = dynamoDB.getTable("books-metadata");
-        table.putItem(createItem(map));
+        table.putItem(createItem(map, fileName));
         return null;
     }
 
-    private Item createItem(Map<String, String> parameters) {
+    private Item createItem(Map<String, String> parameters, String fileName) {
         return new Item()
                 .withJSON("data", safeConvertObjectToJson(parameters))
-                .withPrimaryKey("book", "1");
+                .withPrimaryKey("book", fileName);
     }
 
     private String safeConvertObjectToJson(Object o) {
