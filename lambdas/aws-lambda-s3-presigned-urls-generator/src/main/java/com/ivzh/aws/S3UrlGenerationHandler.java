@@ -45,7 +45,7 @@ public class S3UrlGenerationHandler implements RequestHandler<APIGatewayProxyReq
         LambdaLogger logger = context.getLogger();
         logger.log("generate url for getting s3 object");
 
-        Map<String, String> pathParameters = event.getPathParameters();
+        Map<String, String> pathParameters = event.getQueryStringParameters();
         String file = pathParameters.getOrDefault(FILE_PARAM, "");
         String url = generatePreSignedUrl(file);
 
