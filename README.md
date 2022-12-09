@@ -1,8 +1,9 @@
 # book-audiofy-cloud-native
 
 This repository contains PoC which is illustrating the cloud-native way of audiofying text books. 
-There are 2 main functionalities here: 
+There are 3 main functionalities here: 
 - add new book to the system;
+- observe existing books;
 - download book with audio.
 
 ![diagram](pictures/architecture.png "diagram")
@@ -14,6 +15,7 @@ There are 2 main functionalities here:
 - AWS DynamoDB: reading-writing metadata for the S3 objects;
 - AWS Polly: text-2-speech;
 - AWS Lambda: simple custom functionality for interaction with AWS APIs;
+- AWS SQS: publisher-subscriber pattern;
 - AWS CloudFront: using CDN for S3 audio files (in progress);
 - AWS CloudFormation: infrastructure provisioning.
 
