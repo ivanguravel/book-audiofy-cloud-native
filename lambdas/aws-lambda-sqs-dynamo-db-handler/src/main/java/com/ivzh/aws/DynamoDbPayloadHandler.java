@@ -41,8 +41,8 @@ public class DynamoDbPayloadHandler implements RequestHandler<SQSEvent, Void> {
 
     private Item createItem(Map<String, String> parameters, String fileName) {
         return new Item()
-                .withJSON("data", safeConvertObjectToJson(parameters))
-                .withPrimaryKey("book", fileName);
+                .withJSON("BookMetadata", safeConvertObjectToJson(parameters))
+                .withPrimaryKey("BookId", fileName);
     }
 
     private String safeConvertObjectToJson(Object o) {
