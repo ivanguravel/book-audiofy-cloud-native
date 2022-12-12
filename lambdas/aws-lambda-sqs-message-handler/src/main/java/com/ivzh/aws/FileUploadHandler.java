@@ -1,5 +1,6 @@
 package com.ivzh.aws;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -8,11 +9,13 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.fileupload.MultipartStream;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +23,16 @@ public class FileUploadHandler implements RequestHandler<APIGatewayProxyRequestE
 
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final String BUCKET_NAME = "le-experiment";
+
+
+    private final AmazonS3 s3Client;
+
+    public FileUploadHandler() {
+        this.s3Client = AmazonS3ClientBuilder.standard()
+                .withRegion(Regions.US_EAST_1)
+                .build();
+    }
 
 
     @Override
@@ -28,65 +41,39 @@ public class FileUploadHandler implements RequestHandler<APIGatewayProxyRequestE
         LambdaLogger logger = context.getLogger();
         logger.log("Loading Java Lambda handler of Proxy");
 
-        //Log the length of the incoming body
         logger.log(String.valueOf(event.getBody().getBytes().length));
 
-        //Create the APIGatewayProxyResponseEvent response
-        APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
-
-        //Set up contentType String
         String contentType = "";
-
-        //Change these values to fit your region and bucket name
-        String clientRegion = "us-east-1";
-        String bucketName = "le-experiment";
-
-        //Every file will be named image.jpg in this example.
-        //You will want to do something different here in production
-        String fileObjKeyName = "photo_2021-05-20_19-52-18.jpg";
-
         try {
 
-            //Get the uploaded file and decode from base64
-            byte[] bI = Base64.decodeBase64(event.getBody().getBytes());
+            byte[] fileBytes = Base64.decodeBase64(event.getBody().getBytes());
 
-            //Get the content-type header and extract the boundary
-            Map<String, String> hps = event.getHeaders();
-            if (hps != null) {
-                contentType = hps.get("content-type");
+            Map<String, String> headers = event.getHeaders();
+            if (headers != null) {
+                contentType = headers.get("content-type");
             }
             String[] boundaryArray = contentType.split("=");
 
-            //Transform the boundary to a byte array
             byte[] boundary = boundaryArray[1].getBytes();
 
-            //Log the extraction for verification purposes
-            logger.log(new String(bI, "UTF-8") + "\n");
+            logger.log(new String(fileBytes, "UTF-8") + "\n");
 
-            //Create a ByteArrayInputStream
-            ByteArrayInputStream content = new ByteArrayInputStream(bI);
+            ByteArrayInputStream content = new ByteArrayInputStream(fileBytes);
 
-            //Create a MultipartStream to process the form-data
             MultipartStream multipartStream =
-                    new MultipartStream(content, boundary, bI.length, null);
+                    new MultipartStream(content, boundary, fileBytes.length, null);
 
-            //Create a ByteArrayOutputStream
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-            //Find first boundary in the MultipartStream
             boolean nextPart = multipartStream.skipPreamble();
 
-            //Loop through each segment
             while (nextPart) {
                 String header = multipartStream.readHeaders();
 
-                //Log header for debugging
                 logger.log("Headers:");
                 logger.log(header);
 
-                //Write out the file to our ByteArrayOutputStream
                 multipartStream.readBodyData(out);
-                //Get the next part, if any
                 nextPart = multipartStream.readBoundary();
             }
 
@@ -96,36 +83,39 @@ public class FileUploadHandler implements RequestHandler<APIGatewayProxyRequestE
             //Prepare an InputStream from the ByteArrayOutputStream
             InputStream fis = new ByteArrayInputStream(out.toByteArray());
 
-            //Create our S3Client Object
-            AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                    .withRegion(clientRegion)
-                    .build();
-
-            //Configure the file metadata
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(out.toByteArray().length);
-            metadata.setContentType("image/jpeg");
-            metadata.setCacheControl("public, max-age=31536000");
-
-            //Put file into S3
-            s3Client.putObject(bucketName, fileObjKeyName, fis, metadata);
+            s3Client.putObject(BUCKET_NAME,
+                    event.getHeaders().getOrDefault("file", ""),
+                    fis, createObjectMetadata(out.toByteArray().length, contentType));
 
             //Log status
-            logger.log("Put object in S3");
-
-            //Provide a response
-            response.setStatusCode(200);
-            Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("Status", "File stored in S3");
-            String responseBodyString = OBJECT_MAPPER.writeValueAsString(responseBody);
-            response.setBody(responseBodyString);
-
+            logger.log("object has been added to S3");
         }
          catch (Exception e) {
             e.printStackTrace();
         }
 
-        logger.log(response.toString());
-        return response;
+        return createResponse(Collections.singletonMap("Status", "File stored in S3"));
+    }
+
+
+    private static ObjectMetadata createObjectMetadata(int fileSize, String contentType) {
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(fileSize);
+        metadata.setContentType(contentType);
+        metadata.setCacheControl("public, max-age=31536000");
+        return metadata;
+    }
+
+
+    private static APIGatewayProxyResponseEvent createResponse(Map<String, String> responseBody) {
+        try {
+            APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent();
+            response.setStatusCode(200);
+            String responseBodyString = OBJECT_MAPPER.writeValueAsString(responseBody);
+            response.setBody(responseBodyString);
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -12,6 +12,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <aws.lambda.java.core>1.2.1</aws.lambda.java.core>
+        <aws.lambda.java.events>3.11.0</aws.lambda.java.events>
+        <aws.lambda.java.log4j2>1.5.1</aws.lambda.java.log4j2>
+        <aws.lambda.java.sdk.s3>1.11.524</aws.lambda.java.sdk.s3>
+        <aws.java.sdk.polly>1.11.77</aws.java.sdk.polly>
+        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <junit.version>4.11</junit.version>
     </properties>
 
     <dependencies>
@@ -19,37 +26,37 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-core</artifactId>
-            <version>1.2.1</version>
+            <version>${aws.lambda.java.core}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-events</artifactId>
-            <version>3.11.0</version>
+            <version>${aws.lambda.java.events}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-log4j2</artifactId>
-            <version>1.5.1</version>
+            <version>${aws.lambda.java.log4j2}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.11.524</version>
+            <version>${aws.lambda.java.sdk.s3}</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.4</version>
+            <version>${commons-fileupload.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-polly</artifactId>
-            <version>1.11.77</version>
+            <version>${aws.java.sdk.polly}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
