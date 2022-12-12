@@ -22,3 +22,10 @@ There are 3 main functionalities here:
 
 ## Language
 - java 1.8
+
+## TODO things
+- continue work on the cloudformation installer;
+- add RDS (for payment options);
+- add CloudFront;
+- add possibility to upload files using S3 pre-signed urls;
+- migrate to AWS SDK 2.x (async/reactive API for S3)
